@@ -1,0 +1,4 @@
+.rebar
+.vagrant
+deps
+ebin
