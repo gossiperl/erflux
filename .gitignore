@@ -1,4 +1,6 @@
+.eunit
 .rebar
 .vagrant
 deps
 ebin
+*.beam
