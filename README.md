@@ -46,35 +46,67 @@ Starting with additional configuration:
 
 ## Writing data
 
-    erflux_http:write_series(<<"erfluxtest">>, [
+    erflux_http:write_series(erfluxtest, [
       [
         { points, [ [ 1, 2, 3 ] ] },
-        { name, <<"testseries">> },
-        { columns, [ <<"A">>, <<"B">>, <<"C">> ] }
+        { name, testseries },
+        { columns, [ a, b, c ] }
       ]
     ]).
 
 or
 
-    erflux_http:write_point(<<"erfluxtest">>, <<"testseries">>, [
-      { <<"A">>, 1 },
-      { <<"B">>, 2 },
-      { <<"C">>, 3 }
+    erflux_http:write_point(erfluxtest, testseries, [
+      { a, 1 },
+      { b, 2 },
+      { c, 3 }
     ]).
 
 ## Reading data
 
 Reading many columns:
 
-    erflux_http:read_point(<<"erfluxtest">>, [<<"A">>, <<"B">>], <<"testseries">>).
+    erflux_http:read_point(erfluxtest, [a, b], testseries).
 
 or a single column:
 
-    erflux_http:read_point(<<"erfluxtest">>, <<"A">>, <<"testseries">>).
+    erflux_http:read_point(erfluxtest, a, testseries).
 
 More complex queries like this:
 
-    erflux_http:q(<<"erfluxtest">>, <<"select A from testseries limit 1">>).
+    erflux_http:q(erfluxtest, <<"select A from testseries limit 1">>).
+
+### Atoms? Binaries?
+
+All functions support 2 variants:
+
+- accepting atoms
+- and accepting binaries
+
+It's not possible to mix argument types. For example, this will fail:
+
+    erflux_http:create_database_user(database, <<"username">>, password).
+
+`Query` parameter of `erflux_http:q` is always binary.
+
+The exception of the `all` rule are columns in `write_series`, `write_point` and `read_series`. All these are valid:
+
+    erflux_http:write_series(erfluxtest, [
+      [
+        { points, [ [ 1, 2, 3 ] ] },
+        { name, testseries },
+        { columns, [ a, <<"b">>, c ] }
+      ]
+    ]).
+
+    erflux_http:write_point(erfluxtest, testseries, [
+      { a, 1 },
+      { <<"b">>, 2 },
+      { c, 3 }
+    ]).
+
+    erflux_http:read_point(erfluxtest, [<<"a">>, b], testseries).
+
 
 ## Other operations
 
