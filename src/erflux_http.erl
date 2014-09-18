@@ -28,7 +28,8 @@
   read_point/3,
   q/2,
   write_series/2,
-  write_point/3 ]).
+  write_point/3,
+  a2b/1 ]).
 
 -include("erflux.hrl").
 
@@ -79,37 +80,57 @@ init([]) ->
 get_databases() ->
   get_( path( <<"db">> ) ).
 
--spec create_database( DatabaseName :: binary() ) -> ok | { error, status_code() } | { error, status_code() }.
+-spec create_database( DatabaseName :: atom() | binary() ) -> ok | { error, status_code() } | { error, status_code() }.
+create_database(DatabaseName) when is_atom(DatabaseName) ->
+  create_database( a2b( DatabaseName ) );
 create_database(DatabaseName) when is_binary(DatabaseName) ->
   post( path( <<"db">> ), [ { name, DatabaseName } ]).
 
--spec delete_database( DatabaseName :: binary() ) -> ok.
+-spec delete_database( DatabaseName :: atom() | binary() ) -> ok.
+delete_database(DatabaseName) when is_atom(DatabaseName) ->
+  delete_database( a2b( DatabaseName ) );
 delete_database(DatabaseName) when is_binary(DatabaseName) ->
   delete( path( <<"db/", DatabaseName/binary>> ) ).
 
 %% Database users:
 
--spec get_database_users( DatabaseName :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+-spec get_database_users( DatabaseName :: atom() | binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+get_database_users(DatabaseName) when is_atom(DatabaseName) ->
+  get_database_users( a2b( DatabaseName ) );
 get_database_users(DatabaseName) when is_binary(DatabaseName) ->
   get_( path( <<"db/", DatabaseName/binary, "/users">> ) ).
 
--spec create_user( DatabaseName :: binary(), Username :: binary(), Password :: binary() ) -> ok | { error, status_code() }.
+-spec create_user( DatabaseName :: atom() | binary(), Username :: atom() | binary(), Password :: atom() | binary() ) -> ok | { error, status_code() }.
+create_user(DatabaseName, Username, Password) when is_atom(DatabaseName)
+                                                andalso is_atom(Username)
+                                                andalso is_atom(Password) ->
+  create_user( a2b( DatabaseName ), a2b( Username ), a2b( Password ) );
 create_user(DatabaseName, Username, Password) when is_binary(DatabaseName)
                                                 andalso is_binary(Username)
                                                 andalso is_binary(Password) ->
   post( path( <<"db/", DatabaseName/binary, "/users">> ), [ { name, Username }, { password, Password } ] ).
 
--spec delete_database_user( DatabaseName :: binary(), Username :: binary() ) -> ok.
+-spec delete_database_user( DatabaseName :: atom() | binary(), Username :: atom() | binary() ) -> ok.
+delete_database_user(DatabaseName, Username) when is_atom(DatabaseName)
+                                               andalso is_atom(Username) ->
+  delete_database_user( a2b( DatabaseName ), a2b( Username ) );
 delete_database_user(DatabaseName, Username) when is_binary(DatabaseName)
                                                andalso is_binary(Username) ->
   delete( path( <<"db/", DatabaseName/binary, "/users/", Username/binary>> ) ).
 
--spec get_database_user( DatabaseName :: binary(), Username :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+-spec get_database_user( DatabaseName :: atom() | binary(), Username :: atom() | binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+get_database_user(DatabaseName, Username) when is_atom(DatabaseName)
+                                            andalso is_atom(Username) ->
+  get_database_user( a2b( DatabaseName ), a2b( Username ) );
 get_database_user(DatabaseName, Username) when is_binary(DatabaseName)
                                             andalso is_binary(Username) ->
   get_( path( <<"db/", DatabaseName/binary, "/users/", Username/binary>> ) ).
 
--spec update_database_user( DatabaseName :: binary(), Username :: binary(), Params :: list() ) -> ok | { error, status_code() }.
+-spec update_database_user( DatabaseName :: atom() | binary(), Username :: atom() | binary(), Params :: [ { binary(), any() } ] ) -> ok | { error, status_code() }.
+update_database_user(DatabaseName, Username, Params) when is_atom(DatabaseName)
+                                                       andalso is_atom(Username)
+                                                       andalso is_list(Params) ->
+  update_database_user( a2b( DatabaseName ), a2b( Username ), Params );
 update_database_user(DatabaseName, Username, Params) when is_binary(DatabaseName)
                                                        andalso is_binary(Username)
                                                        andalso is_list(Params) ->
@@ -121,27 +142,40 @@ update_database_user(DatabaseName, Username, Params) when is_binary(DatabaseName
 get_cluster_admins() ->
   get_( path( <<"cluster_admins">> ) ).
 
--spec delete_cluster_admin( Username :: binary() ) -> ok.
+-spec delete_cluster_admin( Username :: atom() | binary() ) -> ok.
+delete_cluster_admin(Username) when is_atom(Username) ->
+  delete_cluster_admin( a2b( Username ) );
 delete_cluster_admin(Username) when is_binary(Username) ->
   delete( path( <<"cluster_admins/", Username/binary>> ) ).
 
--spec create_cluster_admin( Username :: binary(), Password :: binary() ) -> ok | { error, status_code() }.
+-spec create_cluster_admin( Username :: atom() | binary(), Password :: atom() | binary() ) -> ok | { error, status_code() }.
+create_cluster_admin(Username, Password) when is_atom(Username)
+                                           andalso is_atom(Password) ->
+  create_cluster_admin( a2b( Username ), a2b( Password ) );
 create_cluster_admin(Username, Password) when is_binary(Username)
                                            andalso is_binary(Password) ->
   post( path( <<"cluster_admins">> ), [ { name, Username }, { password, Password } ] ).
 
--spec update_cluster_admin( Username :: binary(), Params :: list() ) -> ok | { error, status_code() }.
+-spec update_cluster_admin( Username :: atom() | binary(), Params :: [ { binary(), any() } ] ) -> ok | { error, status_code() }.
+update_cluster_admin(Username, Params) when is_atom(Username)
+                                         andalso is_list(Params) ->
+  update_cluster_admin( a2b( Username ), Params );
 update_cluster_admin(Username, Params) when is_binary(Username)
                                          andalso is_list(Params) ->
   post( path( <<"cluster_admins/", Username/binary>> ), Params ).
 
 %% Continous queries:
 
--spec get_continuous_queries( DatabaseName :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+-spec get_continuous_queries( DatabaseName :: atom() | binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+get_continuous_queries(DatabaseName) when is_binary(DatabaseName) ->
+  get_continuous_queries( a2b( DatabaseName ) );
 get_continuous_queries(DatabaseName) when is_binary(DatabaseName) ->
   get_( path( <<"db/", DatabaseName/binary, "/continuous_queries">> ) ).
 
--spec delete_continuous_query( DatabaseName :: binary(), Id :: binary() ) -> ok.
+-spec delete_continuous_query( DatabaseName :: atom() | binary(), Id :: atom() | binary() ) -> ok.
+delete_continuous_query(DatabaseName, Id) when is_binary(DatabaseName)
+                                            andalso is_binary(Id) ->
+  delete_continuous_query( a2b( DatabaseName ), a2b( Id ) );
 delete_continuous_query(DatabaseName, Id) when is_binary(DatabaseName)
                                             andalso is_binary(Id) ->
   delete( path( <<"db/", DatabaseName/binary, "continuous_queries/", Id/binary>> ) ).
@@ -182,44 +216,78 @@ get_interfaces() ->
 
 %% Reading data:
 
--spec read_point( DatabaseName :: binary(), FieldNames :: binary() | [ binary() ], SeriesName :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+-spec read_point( DatabaseName :: atom() | binary(), FieldNames :: atom() | binary() | [ atom() | binary() ], SeriesName :: atom() | binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+read_point(DatabaseName, FieldNames, SeriesName) when is_atom(DatabaseName)
+                                                   andalso is_atom(FieldNames)
+                                                   andalso is_atom(SeriesName) ->
+  read_point( a2b( DatabaseName ), [ a2b( FieldNames ) ], a2b( SeriesName ) );
 read_point(DatabaseName, FieldNames, SeriesName) when is_binary(DatabaseName)
                                                    andalso is_binary(FieldNames)
                                                    andalso is_binary(SeriesName) ->
   read_point( DatabaseName, [ FieldNames ], SeriesName );
-
+read_point(DatabaseName, FieldNames, SeriesName) when is_atom(DatabaseName)
+                                                   andalso is_list(FieldNames)
+                                                   andalso is_atom(SeriesName) ->
+  read_point( a2b( DatabaseName ), FieldNames, a2b( SeriesName ) );
 read_point(DatabaseName, FieldNames, SeriesName) when is_binary(DatabaseName)
                                                    andalso is_list(FieldNames)
                                                    andalso is_binary(SeriesName) ->
   QueryStart = lists:foldl(fun(FieldName, Bin) ->
     case Bin of
       <<"SELECT">> ->
-        <<Bin/binary, " ", FieldName/binary>>;
+        case is_atom( FieldName ) of
+          true ->
+            FieldNameBin = a2b(FieldName),
+            <<Bin/binary, " ", FieldNameBin/binary>>;
+          false ->
+            <<Bin/binary, " ", FieldName/binary>>
+        end;
       _ ->
-        <<Bin/binary, ",", FieldName/binary>>
+        case is_atom( FieldName ) of
+          true ->
+            FieldNameBin = a2b(FieldName),
+            <<Bin/binary, " ", FieldNameBin/binary>>;
+          false ->
+            <<Bin/binary, " ", FieldName/binary>>
+        end
     end
   end, <<"SELECT">>, FieldNames),
   q( DatabaseName, <<QueryStart/binary, " FROM ", SeriesName/binary, ";">> ).
 
--spec q( DatabaseName :: binary(), Query :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+-spec q( DatabaseName :: atom() | binary(), Query :: binary() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+q(DatabaseName, Query) when is_atom(DatabaseName)
+                         andalso is_binary(Query) ->
+  q( a2b( DatabaseName ), Query );
 q(DatabaseName, Query) when is_binary(DatabaseName)
                          andalso is_binary(Query) ->
   get_( path( <<"db/", DatabaseName/binary, "/series">> , [ { q, Query } ] ) ).
 
 %% Writing data
-
--spec write_series( DatabaseName :: binary(), SeriesData :: list() ) -> ok | { error, status_code() }.
+-spec write_series( DatabaseName :: atom() | binary(), SeriesData :: list() ) -> ok | { error, status_code() }.
+write_series( DatabaseName, SeriesData ) when is_atom(DatabaseName)
+                                           andalso is_list(SeriesData) ->
+  write_series( a2b( DatabaseName ), SeriesData );
 write_series( DatabaseName, SeriesData ) when is_binary(DatabaseName)
                                            andalso is_list(SeriesData) ->
   post( path( <<"db/", DatabaseName/binary, "/series">> ), SeriesData ).
 
--spec write_point( DatabaseName :: binary(), SeriesName :: binary(), Values :: list() ) -> ok | { error, status_code() }.
+-spec write_point( DatabaseName :: atom() | binary(), SeriesName :: atom() | binary(), Values :: [ { atom() | binary(), any() } ] ) -> ok | { error, status_code() }.
+write_point( DatabaseName, SeriesName, Values ) when is_atom(DatabaseName)
+                                                  andalso is_atom(SeriesName)
+                                                  andalso is_list(Values) ->
+  write_point( a2b( DatabaseName ), a2b( SeriesName ), Values );
 write_point( DatabaseName, SeriesName, Values ) when is_binary(DatabaseName)
                                                   andalso is_binary(SeriesName)
                                                   andalso is_list(Values) ->
   Datum = lists:foldl(fun({ Column, Point }, Acc) ->
     [ { points, [ ExistingPoints ] }, { name, _ }, { columns, ExistingColumns } ] = Acc,
-    [ { points, [ ExistingPoints ++ [ Point ] ] }, { name, SeriesName }, { columns, ExistingColumns ++ [ Column ] } ]
+    ColumnToAppend = case is_atom( Column ) of
+      true ->
+        a2b( Column );
+      false ->
+        Column
+    end,
+    [ { points, [ ExistingPoints ++ [ Point ] ] }, { name, SeriesName }, { columns, ExistingColumns ++ [ ColumnToAppend ] } ]
   end, [ { points, [ [] ] }, { name, SeriesName }, { columns, [] } ], Values),
 
   post( path( <<"db/", DatabaseName/binary, "/series">> ), [ Datum ] ).
@@ -250,6 +318,10 @@ delete( Action ) ->
 delete( Action, Data ) ->
   gen_server:cast(?MODULE, { delete, Action, Data }),
   ok.
+
+-spec a2b( Atom :: atom() ) -> binary().
+a2b( Atom ) ->
+  list_to_binary( atom_to_list( Atom ) ).
 
 handle_call( { path, Action, Options }, From, { http, Config } ) ->
   Username = Config#erflux_config.username,
