@@ -1,6 +1,8 @@
 -module(erflux_http_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+-include("erflux.hrl").
+
 -export([get_timestamp/0]).
 
 -define(DATABASE_NAME, erfluxtest).
@@ -26,6 +28,7 @@ start() ->
   application:start(hackney),
   application:start(jsx),
   application:start(erflux),
+  erflux_sup:add_erflux(erflux_http),
   erflux_http:delete_database(?DATABASE_NAME).
 
 stop(_State) ->
@@ -143,3 +146,7 @@ write_read_mixed_test() ->
                erflux_http:q(?DATABASE_NAME, <<"select a from testseries limit 1">>)),
 
   erflux_http:delete_database(?DATABASE_NAME).
+
+manual_start_test() ->
+  { ok, Pid } = erflux_http:start_link( erflux_custom, #erflux_config{} ),
+  ?assertMatch([], erflux_http:get_databases( Pid )).

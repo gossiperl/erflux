@@ -2,11 +2,11 @@
 -define(_erflux_records_included, yeah).
 
 -record(erflux_config, {
-          username :: binary(),
-          password :: binary(),
-          host :: binary(),
-          port :: integer(),
-          protocol :: binary(),
-          timeout :: integer() }).
+          username = <<"root">> :: binary(),
+          password = <<"root">> :: binary(),
+          host = <<"localhost">> :: binary(),
+          port = 8086 :: integer(),
+          protocol = <<"http">> :: binary(),
+          timeout = infinity :: integer() }).
 
 -endif.
