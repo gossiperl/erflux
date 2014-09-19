@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,erflux}.
+{packages,[]}.
+{modules,[erflux_app,erflux_conf,erflux_http,erflux_sup]}.

@@ -2,6 +2,7 @@
   [{description, "Influxdb client for Erlang"},
   {vsn, "1"},
   {modules, [erflux_app,
+              erflux_conf,
               erflux_sup,
               erflux_http]},
   {registered, erflux_app},

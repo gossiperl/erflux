@@ -6,6 +6,7 @@
           password :: binary(),
           host :: binary(),
           port :: integer(),
-          protocol :: binary() }).
+          protocol :: binary(),
+          timeout :: integer() }).
 
 -endif.

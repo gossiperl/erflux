@@ -42,8 +42,18 @@ Starting with additional configuration:
     application:set_env(erflux, username, <<"root">>),
     application:set_env(erflux, password, <<"root">>),
     application:set_env(erflux, ssl, false),
+    application:set_env(erflux, timeout, infinity),
     application:start(erflux),
     erflux_http:get_databases().
+
+## Configuration
+
+- `host`: IP address or host name of InfluxDB, default: `localhost`
+- `port`: InfluxDB API port, default: `8086`
+- `username`: username to use for the connection, default: `root`
+- `password`: password for the user, default: `root`
+- `ssl`: use SSL? boolean, default: false
+- `timeout`: gen_server:call timeout, integer, milliseconds, default: `infinity`
 
 ## Writing data
 
