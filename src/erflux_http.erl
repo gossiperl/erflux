@@ -64,11 +64,23 @@ configure() ->
       Config2#erflux_config{ port = 8086 }
   end,
 
-  case application:get_env(erflux, host) of
+  Config4 = case application:get_env(erflux, host) of
     { ok, Value4 } ->
       Config3#erflux_config{ host = Value4 };
     undefined ->
       Config3#erflux_config{ host = <<"localhost">> }
+  end,
+
+  case application:get_env(erflux, ssl) of
+    { ok, Value5 } ->
+      case Value5 of
+        true ->
+          Config4#erflux_config{ protocol = <<"https">> };
+        _ ->
+          Config4#erflux_config{ protocol = <<"http">> }
+      end;
+    undefined ->
+      Config4#erflux_config{ protocol = <<"http">> }
   end.
 
 init([]) ->
@@ -336,9 +348,10 @@ handle_call( { path, Action, Options }, From, { http, Config } ) ->
   { noreply, { http, Config } };
 
 handle_call( { get, Path }, From, { http, Config } ) ->
+  Protocol = Config#erflux_config.protocol,
   Host = Config#erflux_config.host,
   Port = list_to_binary(integer_to_list( Config#erflux_config.port )),
-  Uri = <<"http://", Host/binary, ":", Port/binary, "/", Path/binary>>,
+  Uri = <<Protocol/binary, "://", Host/binary, ":", Port/binary, "/", Path/binary>>,
   {ok, StatusCode, _, Ref} = hackney:request(get, Uri, [], <<>>),
   case trunc(StatusCode/100) of
     2 ->
@@ -358,9 +371,10 @@ handle_call( { get, Path }, From, { http, Config } ) ->
   { noreply, { http, Config } };
 
 handle_call( { post, Path, Data }, From, { http, Config } ) ->
+  Protocol = Config#erflux_config.protocol,
   Host = Config#erflux_config.host,
   Port = list_to_binary(integer_to_list( Config#erflux_config.port )),
-  Uri = <<"http://", Host/binary, ":", Port/binary, "/", Path/binary>>,
+  Uri = <<Protocol/binary, "://", Host/binary, ":", Port/binary, "/", Path/binary>>,
   {ok, StatusCode, _, Ref} = hackney:request(post, Uri, [], jsx:encode( Data )),
   {ok, _Body} = hackney:body(Ref),
   case trunc(StatusCode/100) of
@@ -372,9 +386,10 @@ handle_call( { post, Path, Data }, From, { http, Config } ) ->
   { noreply, { http, Config } }.
 
 handle_cast( { delete, Path, Data }, { http, Config } ) ->
+  Protocol = Config#erflux_config.protocol,
   Host = Config#erflux_config.host,
   Port = list_to_binary(integer_to_list( Config#erflux_config.port )),
-  Uri = <<"http://", Host/binary, ":", Port/binary, "/", Path/binary>>,
+  Uri = <<Protocol/binary, "://", Host/binary, ":", Port/binary, "/", Path/binary>>,
   BinaryData = case Data of
     [] ->
       <<"">>;
