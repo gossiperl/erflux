@@ -41,6 +41,7 @@ Starting with additional configuration:
     application:set_env(erflux, port, 8086),
     application:set_env(erflux, username, <<"root">>),
     application:set_env(erflux, password, <<"root">>),
+    application:set_env(erflux, ssl, false),
     application:start(erflux),
     erflux_http:get_databases().
 

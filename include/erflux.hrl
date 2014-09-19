@@ -5,6 +5,7 @@
           username :: binary(),
           password :: binary(),
           host :: binary(),
-          port :: integer() }).
+          port :: integer(),
+          protocol :: binary() }).
 
 -endif.
