@@ -90,7 +90,7 @@ It's not possible to mix argument types. For example, this will fail:
 
 `Query` parameter of `erflux_http:q` is always binary.
 
-The exception of the `all` rule are columns in `write_series`, `write_point` and `read_series`. All these are valid:
+The exceptions to the *all* rule are columns in `write_series`, `write_point` and `read_series`. All these are valid:
 
     erflux_http:write_series(erfluxtest, [
       [
