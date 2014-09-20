@@ -1,6 +1,6 @@
 # InfluxDB client for Erlang
 
-InfluxDB client for Erlang. Work in progress.
+InfluxDB client for Erlang.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Add dependency:
 
     {deps, [
       {erflux, ".*",
-        {git, "git://github.com/benoitc/hackney.git", {branch, "master"}}}
+        {git, "git://github.com/radekg/erflux.git", {tag, "version-1"}}}
     }],
 
 ## Install
@@ -130,6 +130,8 @@ Unit tests contain the full doverage of all other available operations. Unit tes
     ./rebar compile
     ./rebar eunit
 
+`simultaneous_connections_test` test requires Vagrant box to be up. The definition of the box can be found in the `Vagrantfile`.
+
 ## Starting additional clients
 
 This can be done in two ways. With a supervisor:
@@ -159,6 +161,12 @@ Or bypassing the supervisor:
 
     { ok, Pid } = erflux_http:start_link( erflux_custom, #erflux_config{} ),
     erflux_http:get_databases( Pid ).
+
+## Known issues
+
+- `create_cluster_shard/4` and `create_cluster_shard/5` not necessarily implemented correctly
+- `delete_cluster_shard/2` and `delete_cluster_shard/3` not necessarily implemented correctly
+- no unit tests covering above functions
 
 ## Author
 
