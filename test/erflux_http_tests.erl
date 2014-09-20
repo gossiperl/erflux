@@ -147,6 +147,10 @@ write_read_mixed_test() ->
 
   erflux_http:delete_database(?DATABASE_NAME).
 
-manual_start_test() ->
-  { ok, Pid } = erflux_http:start_link( erflux_custom, #erflux_config{} ),
-  ?assertMatch([], erflux_http:get_databases( Pid )).
+simultaneous_connections_test() ->
+  {ok, ECPid} =       erflux_sup:add_erflux(erflux_custom, <<"root">>, <<"root">>, <<"192.168.50.115">>),
+  ?assertEqual(ok,    erflux_http:create_database(?DATABASE_NAME)),
+  ?assertEqual(true,  lists:member( [{<<"name">>, ?DATABASE_NAME_ATOM}], erflux_http:get_databases()) ),
+  ?assertEqual(false, lists:member( [{<<"name">>, ?DATABASE_NAME_ATOM}], erflux_http:get_databases( ECPid )) ),
+  ?assertEqual(ok,    erflux_http:delete_database(?DATABASE_NAME )),
+  erflux_sup:remove_erflux(erflux_custom).
