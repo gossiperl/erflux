@@ -160,3 +160,6 @@ autneticate_user_test() ->
   ?assertEqual(ok,        erflux_http:create_user(?DATABASE_NAME, ?DATABASE_USER, ?DATABASE_USER_PASS)),
   ?assertMatch({ok, 200}, erflux_http:authenticate_database_user(?DATABASE_NAME, ?DATABASE_USER, ?DATABASE_USER_PASS)),
   ?assertEqual(ok,    erflux_http:delete_database(?DATABASE_NAME )).
+
+ping_test() ->
+  ?assertMatch([{<<"status">>, <<"ok">>}], erflux_http:ping()).

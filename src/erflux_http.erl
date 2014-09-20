@@ -5,6 +5,7 @@
 -export([start_link/0, start_link/1, start_link/2, stop/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, code_change/3, terminate/2]).
 -export([
+  ping/0,
   get_databases/0,
   create_database/1,
   delete_database/1,
@@ -31,6 +32,7 @@
   write_series/2,
   write_point/3,
   a2b/1,
+  ping/1,
   get_databases/1,
   create_database/2,
   delete_database/2,
@@ -82,6 +84,18 @@ init([ Configuration ]) ->
   {ok, {http, self(), Configuration}};
 init([ _Name, Configuration ]) ->
   {ok, {http, self(), Configuration}}.
+
+%% General
+
+-spec ping() -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+%% @doc Check if InfluxDB server is online.
+ping() ->
+  ping( ?MODULE ).
+
+-spec ping( Pid :: pid() | atom() ) -> list() | { error, json_parse, json_parse_error_reason() } | { error, status_code() }.
+%% @doc Check if InfluxDB server is online.
+ping(Pid) when is_pid(Pid) orelse is_atom(Pid) ->
+  get_( Pid, path( Pid, <<"ping">> ) ).
 
 %% Databases:
 
