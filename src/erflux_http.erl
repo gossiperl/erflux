@@ -13,6 +13,7 @@
   delete_database_user/2,
   get_database_user/2,
   update_database_user/3,
+  authenticate_database_user/3,
   get_cluster_admins/0,
   delete_cluster_admin/1,
   create_cluster_admin/2,
@@ -38,6 +39,7 @@
   delete_database_user/3,
   get_database_user/3,
   update_database_user/4,
+  authenticate_database_user/4,
   get_cluster_admins/1,
   delete_cluster_admin/2,
   create_cluster_admin/3,
@@ -230,6 +232,30 @@ update_database_user(Pid, DatabaseName, Username, Params) when (is_pid(Pid) orel
                                                             andalso is_binary(Username)
                                                             andalso is_list(Params) ->
   post( Pid, path( Pid, <<"db/", DatabaseName/binary, "/users/", Username/binary>> ), Params ).
+
+%% @doc Authenticates a database user.
+-spec authenticate_database_user( DatabaseName :: atom() | binary(), Username :: atom() | binary(), Password :: atom() | binary() ) -> {ok, status_code()}.
+authenticate_database_user(DatabaseName, Username, Password) when is_atom(DatabaseName)
+                                                               andalso is_atom(Username)
+                                                               andalso is_atom(Password) ->
+  authenticate_database_user( ?MODULE, a2b( DatabaseName ), a2b( Username ), a2b( Password ) );
+authenticate_database_user(DatabaseName, Username, Password) when is_binary(DatabaseName)
+                                                               andalso is_binary(Username)
+                                                               andalso is_binary(Password) ->
+  authenticate_database_user( ?MODULE, DatabaseName, Username, Password ).
+
+%% @doc Authenticates a database user.
+-spec authenticate_database_user( Pid :: pid() | atom(), DatabaseName :: atom() | binary(), Username :: atom() | binary(), Password :: atom() | binary() ) -> {ok, status_code()}.
+authenticate_database_user(Pid, DatabaseName, Username, Password) when (is_pid(Pid) orelse is_atom(Pid))
+                                                                    andalso is_atom(DatabaseName)
+                                                                    andalso is_atom(Username)
+                                                                    andalso is_atom(Password) ->
+  authenticate_database_user( Pid, a2b( DatabaseName ), a2b( Username ), a2b( Password ) );
+authenticate_database_user(Pid, DatabaseName, Username, Password) when (is_pid(Pid) orelse is_atom(Pid))
+                                                                    andalso is_binary(DatabaseName)
+                                                                    andalso is_binary(Username)
+                                                                    andalso is_binary(Password) ->
+  get_( Pid, path( Pid, <<"db/", DatabaseName/binary, "/authenticate">>, [ { u, Username }, { p, Password } ] ) ).
 
 %% Cluster admins:
 
@@ -584,8 +610,18 @@ a2b( Atom ) ->
   list_to_binary( atom_to_list( Atom ) ).
 
 handle_call( { path, Action, Options }, From, { http, Pid, Config } ) ->
-  Username = Config#erflux_config.username,
-  Password = Config#erflux_config.password,
+  Username = case lists:keyfind(u, 1, Options) of
+    { u, GivenUsername } ->
+      GivenUsername;
+    false ->
+      Config#erflux_config.username
+  end,
+  Password = case lists:keyfind(p, 1, Options) of
+    {p, GivenPassword} ->
+      GivenPassword;
+    false ->
+      Config#erflux_config.password
+  end,
   case lists:keyfind( q, 1, Options ) of
     false ->
       gen_server:reply(From, <<Action/binary, "?u=", Username/binary, "&p=", Password/binary>>);
@@ -610,14 +646,19 @@ handle_call( { get, timeout, Path }, From, { http, Pid, Config } ) ->
   case trunc(StatusCode/100) of
     2 ->
       {ok, Body} = hackney:body(Ref),
-      try
-        case jsx:decode( Body ) of
-          JsonData ->
-            gen_server:reply(From, JsonData)
-        end
-      catch
-        _Error:Reason ->
-          gen_server:reply(From, { error, json_parse, Reason })
+      case Body of
+        <<"">> ->
+          gen_server:reply(From, { ok, StatusCode });
+        _ ->
+          try
+            case jsx:decode( Body ) of
+              JsonData ->
+                gen_server:reply(From, JsonData)
+            end
+          catch
+            _Error:Reason ->
+              gen_server:reply(From, { error, json_parse, Reason })
+          end
       end;
     _ ->
       gen_server:reply(From, { error, StatusCode })

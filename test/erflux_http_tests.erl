@@ -154,3 +154,9 @@ simultaneous_connections_test() ->
   ?assertEqual(false, lists:member( [{<<"name">>, ?DATABASE_NAME_ATOM}], erflux_http:get_databases( ECPid )) ),
   ?assertEqual(ok,    erflux_http:delete_database(?DATABASE_NAME )),
   erflux_sup:remove_erflux(erflux_custom).
+
+autneticate_user_test() ->
+  ?assertEqual(ok,        erflux_http:create_database(?DATABASE_NAME)),
+  ?assertEqual(ok,        erflux_http:create_user(?DATABASE_NAME, ?DATABASE_USER, ?DATABASE_USER_PASS)),
+  ?assertMatch({ok, 200}, erflux_http:authenticate_database_user(?DATABASE_NAME, ?DATABASE_USER, ?DATABASE_USER_PASS)),
+  ?assertEqual(ok,    erflux_http:delete_database(?DATABASE_NAME )).
