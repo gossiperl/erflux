@@ -25,6 +25,7 @@ Starting with default settings:
     application:start(hackney),
     application:start(jsx),
     application:start(erflux),
+    erflux_sup:add_erflux(erflux_http),
     erflux_http:get_databases().
 
 Starting with additional configuration:
@@ -44,6 +45,7 @@ Starting with additional configuration:
     application:set_env(erflux, ssl, false),
     application:set_env(erflux, timeout, infinity),
     application:start(erflux),
+    erflux_sup:add_erflux(erflux_http),
     erflux_http:get_databases().
 
 ## Configuration
@@ -118,7 +120,6 @@ The exceptions to the *all* rule are columns in `write_series`, `write_point` an
 
     erflux_http:read_point(erfluxtest, [<<"a">>, b], testseries).
 
-
 ## Other operations
 
 Unit tests contain the full doverage of all other available operations. Unit tests can be found in the `test/` directory.
@@ -128,6 +129,36 @@ Unit tests contain the full doverage of all other available operations. Unit tes
     ./rebar get-deps
     ./rebar compile
     ./rebar eunit
+
+## Starting additional clients
+
+This can be done in two ways. With a supervisor:
+
+    application:start(crypto),
+    application:start(asn1),
+    application:start(public_key),
+    application:start(ssl),
+    application:start(idna),
+    application:start(hackney),
+    application:start(jsx),
+    application:start(erflux),
+    %% This will connect to localhost, if no other settings provided:
+    erflux_sup:add_erflux(erflux_http),
+    erflux_http:get_databases().
+
+    %% Start the additional client, connect to a different host:
+    {ok, RemoteHost} = erflux_sup:add_erflux(erflux_custom_host, <<"root">>, <<"root">>, <<"somehost.influxdb">>).
+
+    %% To list databases of the remote host, do the following:
+    erflux_http:get_databases(RemoteHost).
+
+    %% To remove the instance:
+    erflux_sup:remove_erflux(erflux_custom_host).
+
+Or bypassing the supervisor:
+
+    { ok, Pid } = erflux_http:start_link( erflux_custom, #erflux_config{} ),
+    erflux_http:get_databases( Pid ).
 
 ## Author
 

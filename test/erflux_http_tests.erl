@@ -1,6 +1,8 @@
 -module(erflux_http_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+-include("erflux.hrl").
+
 -export([get_timestamp/0]).
 
 -define(DATABASE_NAME, erfluxtest).
@@ -26,6 +28,7 @@ start() ->
   application:start(hackney),
   application:start(jsx),
   application:start(erflux),
+  erflux_sup:add_erflux(erflux_http),
   erflux_http:delete_database(?DATABASE_NAME).
 
 stop(_State) ->
@@ -143,3 +146,11 @@ write_read_mixed_test() ->
                erflux_http:q(?DATABASE_NAME, <<"select a from testseries limit 1">>)),
 
   erflux_http:delete_database(?DATABASE_NAME).
+
+simultaneous_connections_test() ->
+  {ok, ECPid} =       erflux_sup:add_erflux(erflux_custom, <<"root">>, <<"root">>, <<"192.168.50.115">>),
+  ?assertEqual(ok,    erflux_http:create_database(?DATABASE_NAME)),
+  ?assertEqual(true,  lists:member( [{<<"name">>, ?DATABASE_NAME_ATOM}], erflux_http:get_databases()) ),
+  ?assertEqual(false, lists:member( [{<<"name">>, ?DATABASE_NAME_ATOM}], erflux_http:get_databases( ECPid )) ),
+  ?assertEqual(ok,    erflux_http:delete_database(?DATABASE_NAME )),
+  erflux_sup:remove_erflux(erflux_custom).
