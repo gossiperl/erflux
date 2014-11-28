@@ -527,7 +527,7 @@ q(Pid, DatabaseName, Query) when (is_pid(Pid) orelse is_atom(Pid))
 q(Pid, DatabaseName, Query) when (is_pid(Pid) orelse is_atom(Pid))
                               andalso is_binary(DatabaseName)
                               andalso is_binary(Query) ->
-  get_( ?MODULE, path( ?MODULE, <<"db/", DatabaseName/binary, "/series">> , [ { q, Query } ] ) ).
+  get_( Pid, path( Pid, <<"db/", DatabaseName/binary, "/series">> , [ { q, Query } ] ) ).
 
 %% Writing data
 
