@@ -8,7 +8,7 @@ Add dependency:
 
     {deps, [
       {erflux, ".*",
-        {git, "git://github.com/radekg/erflux.git", {tag, "version-1"}}}
+        {git, "git://github.com/radekg/erflux.git", {tag, "version-1.0.1"}}}
     }],
 
 ## Install
