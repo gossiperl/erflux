@@ -1,10 +1,10 @@
 {application, erflux,
   [{description, "Influxdb client for Erlang"},
-  {vsn, "1"},
+  {vsn, "1.0.2"},
   {modules, [erflux_app,
               erflux_conf,
               erflux_sup,
               erflux_http]},
-  {registered, erflux_app},
+  {registered, [erflux_app]},
   {applications, [kernel, stdlib, crypto, hackney, jsx]},
   {mod, {erflux_app, []}}]}.
