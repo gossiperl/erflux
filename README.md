@@ -17,26 +17,12 @@ Add dependency:
 
 Starting with default settings:
 
-    application:start(crypto),
-    application:start(asn1),
-    application:start(public_key),
-    application:start(ssl),
-    application:start(idna),
-    application:start(hackney),
-    application:start(jsx),
-    application:start(erflux),
+    application:ensure_all_started(erflux),
     erflux_sup:add_erflux(erflux_http),
     erflux_http:get_databases().
 
 Starting with additional configuration:
 
-    application:start(crypto),
-    application:start(asn1),
-    application:start(public_key),
-    application:start(ssl),
-    application:start(idna),
-    application:start(hackney),
-    application:start(jsx),
     application:load(erflux),
     application:set_env(erflux, host, <<"192.168.50.115">>),
     application:set_env(erflux, port, 8086),
@@ -44,7 +30,7 @@ Starting with additional configuration:
     application:set_env(erflux, password, <<"root">>),
     application:set_env(erflux, ssl, false),
     application:set_env(erflux, timeout, infinity),
-    application:start(erflux),
+    application:ensure_all_started(erflux),
     erflux_sup:add_erflux(erflux_http),
     erflux_http:get_databases().
 

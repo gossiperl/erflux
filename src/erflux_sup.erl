@@ -17,6 +17,7 @@
 
 -define(ATTEMPT_MODULE_USE, true).
 -define(CUSTOM_PID, fasle).
+-define(CONF_MODULE, erflux_conf).
 
 -type child() :: undefined | pid().
 -type config() :: #erflux_config{}.
@@ -37,19 +38,22 @@ init([]) ->
 -spec add_erflux( Name :: atom() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name) ->
-  add_erflux_internal( Name, #erflux_config{} ).
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{} ).
 
 -spec add_erflux( Name :: atom(), Username :: binary(), Password :: binary() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name, Username, Password) ->
-  add_erflux_internal( Name, #erflux_config{
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{
                               username = Username,
                               password = Password } ).
 
 -spec add_erflux( Name :: atom(), Username :: binary(), Password :: binary(), Host :: binary() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name, Username, Password, Host ) ->
-  add_erflux_internal( Name, #erflux_config{
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{
                               username = Username,
                               password = Password,
                               host = Host } ).
@@ -57,7 +61,8 @@ add_erflux(Name, Username, Password, Host ) ->
 -spec add_erflux( Name :: atom(), Username :: binary(), Password :: binary(), Host :: binary(), Port :: binary() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name, Username, Password, Host, Port) ->
-  add_erflux_internal( Name, #erflux_config{
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{
                               username = Username,
                               password = Password,
                               host = Host,
@@ -66,7 +71,8 @@ add_erflux(Name, Username, Password, Host, Port) ->
 -spec add_erflux( Name :: atom(), Username :: binary(), Password :: binary(), Host :: binary(), Port :: binary(), Protocol :: binary() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name, Username, Password, Host, Port, Protocol) ->
-  add_erflux_internal( Name, #erflux_config{
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{
                               username = Username,
                               password = Password,
                               host = Host,
@@ -76,7 +82,8 @@ add_erflux(Name, Username, Password, Host, Port, Protocol) ->
 -spec add_erflux( Name :: atom(), Username :: binary(), Password :: binary(), Host :: binary(), Port :: binary(), Protocol :: binary(), Timeout :: integer() ) -> statup_result().
 %% @doc Starts instance of erflux with a given name. If name other than erflux_http, pid() versions of erflux_http functions have to be used.
 add_erflux(Name, Username, Password, Host, Port, Protocol, Timeout) ->
-  add_erflux_internal( Name, #erflux_config{
+  Config = ?CONF_MODULE:configure(),
+  add_erflux_internal( Name, Config#erflux_config{
                               username = Username,
                               password = Password,
                               host = Host,
