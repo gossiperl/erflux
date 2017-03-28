@@ -488,23 +488,12 @@ read_point(Pid, DatabaseName, FieldNames, SeriesName) when (is_pid(Pid) orelse i
                                                         andalso is_list(FieldNames)
                                                         andalso is_binary(SeriesName) ->
   QueryStart = lists:foldl(fun(FieldName, Bin) ->
-    case Bin of
-      <<"SELECT">> ->
-        case is_atom( FieldName ) of
-          true ->
-            FieldNameBin = a2b(FieldName),
-            <<Bin/binary, " ", FieldNameBin/binary>>;
-          false ->
-            <<Bin/binary, " ", FieldName/binary>>
-        end;
-      _ ->
-        case is_atom( FieldName ) of
-          true ->
-            FieldNameBin = a2b(FieldName),
-            <<Bin/binary, " ", FieldNameBin/binary>>;
-          false ->
-            <<Bin/binary, " ", FieldName/binary>>
-        end
+    case is_atom( FieldName ) of
+      true ->
+        FieldNameBin = a2b(FieldName),
+        <<Bin/binary, " ", FieldNameBin/binary>>;
+      false ->
+        <<Bin/binary, " ", FieldName/binary>>
     end
   end, <<"SELECT">>, FieldNames),
   q( DatabaseName, <<QueryStart/binary, " FROM ", SeriesName/binary, ";">> ).
